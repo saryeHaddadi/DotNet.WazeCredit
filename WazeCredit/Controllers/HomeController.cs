@@ -1,20 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using WazeCredit.Models;
 using WazeCredit.Models.ViewModels;
 using WazeCredit.Service;
 using WazeCredit.Service.Interfaces;
+using WazeCredit.Utility.AppSettingsClasses;
 
 namespace WazeCredit.Controllers;
 public class HomeController : Controller
 {
 	public HomeViewModel _homeVM { get; set; }
 	private readonly IMarketForcaster _marketForecaster;
+	private readonly StripeSettings _stripeOptions;
+	private readonly SendGridSettings _sendGridOptions;
+	private readonly TwilioSettings _twilioOptions;
+	private readonly WazeForecastSettings _wazeOptions;
 
-	public HomeController(IMarketForcaster marketForecaster)
+
+	public HomeController(IMarketForcaster marketForecaster,
+		IOptions<StripeSettings> stripeOptions,
+		IOptions<SendGridSettings> sendGridOptions,
+		IOptions<TwilioSettings> twilioOptions,
+		IOptions<WazeForecastSettings> wazeOptions
+		)
 	{
 		_homeVM = new HomeViewModel();
 		_marketForecaster = marketForecaster;
+		_stripeOptions = stripeOptions.Value;
+		_sendGridOptions = sendGridOptions.Value;
+		_twilioOptions = twilioOptions.Value;
+		_wazeOptions = wazeOptions.Value;
 	}
 
 	public IActionResult Index()
@@ -37,6 +53,20 @@ public class HomeController : Controller
 				break;
 		}
 		return View(_homeVM);
+	}
+
+	public IActionResult AllConfigSettings()
+	{
+		var messages = new List<string>();
+		messages.Add($"Waze config: " + _wazeOptions.ForecastTrackerEnabled);
+		messages.Add($"Stripe PubKey: " + _stripeOptions.PublishableKey);
+		messages.Add($"Stripe SecretKey: " + _stripeOptions.SecretKey);
+		messages.Add($"SendGrid Key: " + _sendGridOptions.SendGridKey);
+		messages.Add($"Twilio Phone: " + _twilioOptions.PhoneNumber);
+		messages.Add($"Twilio SID: " + _twilioOptions.AccountSid);
+		messages.Add($"Twilio Token: " + _twilioOptions.AuthToken);
+
+		return View(messages);
 	}
 
 	public IActionResult Privacy()

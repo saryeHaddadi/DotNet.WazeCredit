@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using WazeCredit.Data;
 using WazeCredit.Service;
 using WazeCredit.Service.Interfaces;
+using WazeCredit.Utility.AppSettingsClasses;
+using WazeCredit.Utility.DIConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +18,17 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 	.AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
+/// <summary>
+/// First DI!
+/// </summary>
 builder.Services.AddTransient<IMarketForcaster, MarketForcaster>();
 //builder.Services.AddTransient<IMarketForcaster, MarketForcasterV2>();
+
+/// <summary>
+/// IOptions examples
+/// </summary>
+builder.AddAppSettingsConfig();
+
 
 var app = builder.Build();
 
