@@ -50,6 +50,10 @@ builder.Services.AddTransient<TransientService>();
 builder.Services.TryAddTransient<IMarketForcaster, MarketForcaster>();
 builder.Services.TryAddTransient<IMarketForcaster, MarketForcasterV2>();
 
+// Replace, Remove
+//builder.Services.Replace(ServiceDescriptor.Transient<IMarketForcaster, MarketForcasterV2>());
+//builder.Services.RemoveAll<IMarketForcaster>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
