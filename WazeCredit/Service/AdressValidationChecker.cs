@@ -7,7 +7,7 @@ public class AdressValidationChecker : IValidationChecker
 {
 	public string ErrorMessage => "Address validation failed";
 
-	public bool ValidationLogic(LoanApplication model)
+	public bool ValidateLogic(LoanApplication model)
 	{
 		if(model.PostalCode <= 0 || model.PostalCode > 100000)
 		{
