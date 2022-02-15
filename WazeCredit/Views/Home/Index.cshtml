@@ -1,4 +1,11 @@
 ﻿@model WazeCredit.Models.ViewModels.HomeViewModel
+@using Microsoft.Extensions.Options
+@inject IOptions<WazeCredit.Utility.AppSettingsClasses.WazeForecastSettings> wazeForecastSettings
+@*To Retrive session values:
+- register the IHttpContext in Startup.cs
+- you can inject the Session service in the view directly*@
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor httpContext
+
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -6,4 +13,5 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>@Model.MarketForcast</p>
+    <p>Currnet Marker Prediction: @(wazeForecastSettings.Value.ForecastTrackerEnabled ? "Online" : "Offline")</p>
 </div>
