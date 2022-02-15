@@ -18,18 +18,10 @@ public class HomeController : Controller
 	private readonly WazeForecastSettings _wazeOptions;
 
 
-	public HomeController(IMarketForcaster marketForecaster,
-		IOptions<StripeSettings> stripeOptions,
-		IOptions<SendGridSettings> sendGridOptions,
-		IOptions<TwilioSettings> twilioOptions,
-		IOptions<WazeForecastSettings> wazeOptions
-		)
+	public HomeController(IMarketForcaster marketForecaster, IOptions<WazeForecastSettings> wazeOptions)
 	{
 		_homeVM = new HomeViewModel();
 		_marketForecaster = marketForecaster;
-		_stripeOptions = stripeOptions.Value;
-		_sendGridOptions = sendGridOptions.Value;
-		_twilioOptions = twilioOptions.Value;
 		_wazeOptions = wazeOptions.Value;
 	}
 
@@ -55,16 +47,20 @@ public class HomeController : Controller
 		return View(_homeVM);
 	}
 
-	public IActionResult AllConfigSettings()
+	public IActionResult AllConfigSettings(
+		[FromServices] IOptions<StripeSettings> stripeOptions,
+		[FromServices] IOptions<SendGridSettings> sendGridOptions,
+		[FromServices] IOptions<TwilioSettings> twilioOptions
+		)
 	{
 		var messages = new List<string>();
 		messages.Add($"Waze config: " + _wazeOptions.ForecastTrackerEnabled);
-		messages.Add($"Stripe PubKey: " + _stripeOptions.PublishableKey);
-		messages.Add($"Stripe SecretKey: " + _stripeOptions.SecretKey);
-		messages.Add($"SendGrid Key: " + _sendGridOptions.SendGridKey);
-		messages.Add($"Twilio Phone: " + _twilioOptions.PhoneNumber);
-		messages.Add($"Twilio SID: " + _twilioOptions.AccountSid);
-		messages.Add($"Twilio Token: " + _twilioOptions.AuthToken);
+		messages.Add($"Stripe PubKey: " + stripeOptions.Value.PublishableKey);
+		messages.Add($"Stripe SecretKey: " + stripeOptions.Value.SecretKey);
+		messages.Add($"SendGrid Key: " + sendGridOptions.Value.SendGridKey);
+		messages.Add($"Twilio Phone: " + twilioOptions.Value.PhoneNumber);
+		messages.Add($"Twilio SID: " + twilioOptions.Value.AccountSid);
+		messages.Add($"Twilio Token: " + twilioOptions.Value.AuthToken);
 
 		return View(messages);
 	}
