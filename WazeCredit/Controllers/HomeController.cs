@@ -12,6 +12,7 @@ namespace WazeCredit.Controllers;
 public class HomeController : Controller
 {
 	public HomeViewModel _homeVM { get; set; }
+	private readonly ILogger _logger;
 	private readonly ApplicationDbContext _db;
 	private readonly IMarketForcaster _marketForecaster;
 	private readonly StripeSettings _stripeOptions;
@@ -22,14 +23,16 @@ public class HomeController : Controller
 	[BindProperty]
 	public LoanApplication LoanModel { get; set; }
 
-	public HomeController(ApplicationDbContext db,
+	public HomeController(ILogger<HomeController> logger,
+		ApplicationDbContext db,
 		IMarketForcaster marketForecaster,
 		IOptions<WazeForecastSettings> wazeOptions,
 		ILoanValidator loanValidator
 		)
 	{
-		_db = db;
 		_homeVM = new HomeViewModel();
+		_db = db;
+		_logger = logger;
 		_marketForecaster = marketForecaster;
 		_wazeOptions = wazeOptions.Value;
 		_loanValidator = loanValidator;
@@ -37,6 +40,7 @@ public class HomeController : Controller
 
 	public IActionResult Index()
 	{
+		_logger.LogInformation("Home Controller Index Action Called");
 		var currentMarket = _marketForecaster.GetMarketPrediction();
 
 		switch (currentMarket.MarketCondition)
@@ -54,6 +58,8 @@ public class HomeController : Controller
 				_homeVM.MarketForcast = "Apply for a discount!";
 				break;
 		}
+
+		_logger.LogInformation("Home Controller Index Action Ended");
 		return View(_homeVM);
 	}
 
