@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using WazeCredit.Data;
 using WazeCredit.Middleware;
 using WazeCredit.Service;
@@ -37,6 +38,17 @@ builder.AddAppSettingsConfig();
 builder.Services.AddSingleton<SingletonService>();
 builder.Services.AddScoped<ScopedService>();
 builder.Services.AddTransient<TransientService>();
+
+// Other ways of registering services 
+//builder.Services.AddSingleton(new MarketForcaster());
+//builder.Services.AddSingleton<IMarketForcaster, MarketForcaster>();
+//builder.Services.AddSingleton<IMarketForcaster>(new MarketForcaster());
+//builder.Services.AddTransient(typeof(IMarketForcaster), typeof(MarketForcaster));
+
+// Making sur that an implementation is not registered two time
+// for the same interface
+builder.Services.TryAddTransient<IMarketForcaster, MarketForcaster>();
+builder.Services.TryAddTransient<IMarketForcaster, MarketForcasterV2>();
 
 var app = builder.Build();
 
