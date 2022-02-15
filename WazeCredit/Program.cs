@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WazeCredit.Data;
+using WazeCredit.Middleware;
 using WazeCredit.Service;
 using WazeCredit.Service.Interfaces;
+using WazeCredit.Service.LifeTimeExamples;
 using WazeCredit.Utility.AppSettingsClasses;
 using WazeCredit.Utility.DIConfig;
 
@@ -29,6 +31,12 @@ builder.Services.AddTransient<IMarketForcaster, MarketForcaster>();
 /// </summary>
 builder.AddAppSettingsConfig();
 
+/// <summary>
+/// LifeTime Examples
+/// </summary>
+builder.Services.AddSingleton<SingletonService>();
+builder.Services.AddScoped<ScopedService>();
+builder.Services.AddTransient<TransientService>();
 
 var app = builder.Build();
 
@@ -51,6 +59,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<CustomMiddleware>();
 
 app.MapControllerRoute(
 	name: "default",
