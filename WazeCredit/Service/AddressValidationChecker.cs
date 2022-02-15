@@ -3,7 +3,7 @@ using WazeCredit.Service.Interfaces;
 
 namespace WazeCredit.Service;
 
-public class AdressValidationChecker : IValidationChecker
+public class AddressValidationChecker : IValidationChecker
 {
 	public string ErrorMessage => "Address validation failed";
 

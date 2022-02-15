@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using WazeCredit.Data;
 using WazeCredit.Models;
 using WazeCredit.Models.ViewModels;
 using WazeCredit.Service;
@@ -11,6 +12,7 @@ namespace WazeCredit.Controllers;
 public class HomeController : Controller
 {
 	public HomeViewModel _homeVM { get; set; }
+	private readonly ApplicationDbContext _db;
 	private readonly IMarketForcaster _marketForecaster;
 	private readonly StripeSettings _stripeOptions;
 	private readonly SendGridSettings _sendGridOptions;
@@ -20,11 +22,13 @@ public class HomeController : Controller
 	[BindProperty]
 	public LoanApplication LoanModel { get; set; }
 
-	public HomeController(IMarketForcaster marketForecaster,
+	public HomeController(ApplicationDbContext db,
+		IMarketForcaster marketForecaster,
 		IOptions<WazeForecastSettings> wazeOptions,
 		ILoanValidator loanValidator
 		)
 	{
+		_db = db;
 		_homeVM = new HomeViewModel();
 		_marketForecaster = marketForecaster;
 		_wazeOptions = wazeOptions.Value;
@@ -80,7 +84,8 @@ public class HomeController : Controller
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	[ActionName("LoanApplication")]
-	public async Task<IActionResult> LoanApplicationPOST()
+	public async Task<IActionResult> LoanApplicationPOST(
+		[FromServices] Func<LoanApprovedEnum, ILoanApproved> _loanService)
 	{
 		if(ModelState.IsValid)
 		{
@@ -93,7 +98,14 @@ public class HomeController : Controller
 			};
 			if (validationPassed)
 			{
-				// add to DB
+				LoanModel.CreditApproved = _loanService(
+					LoanModel.Salary > 50000 ? 
+					LoanApprovedEnum.High : LoanApprovedEnum.Low)
+					.GetLoanApproved(LoanModel);
+				_db.LoanApplicationModel.Add(LoanModel);
+				_db.SaveChanges();
+				loanResult.CreditID = LoanModel.Id;
+				loanResult.CreditApproved = LoanModel.CreditApproved;
 			}
 			return RedirectToAction(nameof(LoanResult), loanResult);
 		}
