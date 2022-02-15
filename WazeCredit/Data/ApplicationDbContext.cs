@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using WazeCredit.Models;
 
 namespace WazeCredit.Data;
 public class ApplicationDbContext : IdentityDbContext
@@ -8,4 +9,6 @@ public class ApplicationDbContext : IdentityDbContext
 		: base(options)
 	{
 	}
+
+	public DbSet<LoanApplication> LoanApplicationModel { get; set; }
 }
