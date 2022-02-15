@@ -47,13 +47,16 @@ builder.Services.AddTransient<TransientService>();
 
 // Making sur that an implementation is not registered two time
 // for the same interface
-builder.Services.TryAddTransient<IMarketForcaster, MarketForcaster>();
-builder.Services.TryAddTransient<IMarketForcaster, MarketForcasterV2>();
+//builder.Services.TryAddTransient<IMarketForcaster, MarketForcaster>();
+//builder.Services.TryAddTransient<IMarketForcaster, MarketForcasterV2>();
 
 // Replace, Remove
 //builder.Services.Replace(ServiceDescriptor.Transient<IMarketForcaster, MarketForcasterV2>());
 //builder.Services.RemoveAll<IMarketForcaster>();
 
+builder.Services.AddScoped<IValidationChecker, AdressValidationChecker>();
+builder.Services.AddScoped<IValidationChecker, LoanValidationChecker>();
+builder.Services.AddScoped<ILoanValidator, LoanValidator>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

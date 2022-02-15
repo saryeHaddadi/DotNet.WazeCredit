@@ -16,14 +16,19 @@ public class HomeController : Controller
 	private readonly SendGridSettings _sendGridOptions;
 	private readonly TwilioSettings _twilioOptions;
 	private readonly WazeForecastSettings _wazeOptions;
+	private readonly ILoanValidator _loanValidator;
 	[BindProperty]
-	private LoanApplication LoanModel { get; set; }
+	public LoanApplication LoanModel { get; set; }
 
-	public HomeController(IMarketForcaster marketForecaster, IOptions<WazeForecastSettings> wazeOptions)
+	public HomeController(IMarketForcaster marketForecaster,
+		IOptions<WazeForecastSettings> wazeOptions,
+		ILoanValidator loanValidator
+		)
 	{
 		_homeVM = new HomeViewModel();
 		_marketForecaster = marketForecaster;
 		_wazeOptions = wazeOptions.Value;
+		_loanValidator = loanValidator;
 	}
 
 	public IActionResult Index()
@@ -72,7 +77,33 @@ public class HomeController : Controller
 		return View(LoanModel);
 	}
 
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	[ActionName("LoanApplication")]
+	public async Task<IActionResult> LoanApplicationPOST()
+	{
+		if(ModelState.IsValid)
+		{
+			var (validationPassed, errorMessages) = await _loanValidator.PassAllValidations(LoanModel);
+			var loanResult = new LoanResult()
+			{
+				ErrorList = errorMessages,
+				CreditID = 0,
+				Success = validationPassed
+			};
+			if (validationPassed)
+			{
+				// add to DB
+			}
+			return RedirectToAction(nameof(LoanResult), loanResult);
+		}
+		return View(LoanModel);
+	}
 
+	public IActionResult LoanResult(LoanResult loanResult)
+	{
+		return View(loanResult);
+	}
 
 	public IActionResult Privacy()
 	{
