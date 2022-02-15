@@ -16,7 +16,8 @@ public class HomeController : Controller
 	private readonly SendGridSettings _sendGridOptions;
 	private readonly TwilioSettings _twilioOptions;
 	private readonly WazeForecastSettings _wazeOptions;
-
+	[BindProperty]
+	private LoanApplication LoanModel { get; set; }
 
 	public HomeController(IMarketForcaster marketForecaster, IOptions<WazeForecastSettings> wazeOptions)
 	{
@@ -64,6 +65,14 @@ public class HomeController : Controller
 
 		return View(messages);
 	}
+
+	public IActionResult LoanApplication()
+	{
+		LoanModel = new LoanApplication();
+		return View(LoanModel);
+	}
+
+
 
 	public IActionResult Privacy()
 	{
